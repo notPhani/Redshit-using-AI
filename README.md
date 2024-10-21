@@ -1,2 +1,3 @@
 # Redshit-using-AI
 Well...
+Shall write this in detail after the completion of code which will be easier to undertand
