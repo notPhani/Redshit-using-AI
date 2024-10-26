@@ -1,3 +1,3 @@
-# Redshit-using-AI
+# Using Artificial Intelligence to find the Redshift of a Galaxy
 Well...
 Shall write this in detail after the completion of code which will be easier to undertand
