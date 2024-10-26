@@ -152,7 +152,7 @@ def navigate_to_spectrum(url):
     print(f"Spectrum downloaded {Color.GREEN}Successfully")
     observer.join()  
 #running a loop
-
+#Shall re-furnish the looping function to make it efficient
 for i in range(1):
     navigate_to_fits(url_collection[i])
     navigate_to_spectrum(url_collection_spectrum[i])
