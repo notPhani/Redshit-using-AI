@@ -7,6 +7,7 @@ import glob
 import time
 import bz2
 from colorist import Color
+import datetime
 
 # Import the web automation library
 from selenium import webdriver
@@ -23,6 +24,8 @@ from watchdog.events import FileSystemEventHandler
 options = Options()
 
 # Enter the SDSS data collection webpage
+m = int(input("Enter how many galaxies you want to inspect : "))  # For a most general case m = len(space_Ids)
+n = int(input("Enter how many galaxies you want to download : ")) # and m = n
 class Id_collection:
     def __init__(self,n_points,csv_file):
         self.n_points = n_points
@@ -44,14 +47,35 @@ class Id_collection:
         for i in range(len(SpaceIds)):
             urls.append(f"https://cas.sdss.org/dr18/VisualTools/explore/fitsspec?spec={SpaceIds[i]}")
         return urls
-
 class Unpack_move:
     def unpack_fits(file_path):
-        fits_file_n = file_path[:-4]
-        with bz2.open(file_path,"rb") as file:
-            with open(fits_file_n,"wb") as fits_file:
+        # Create a unique filename based on the current timestamp
+        timestamp = datetime.datetime.now().strftime("%M")
+    
+        # Check if the filename contains parentheses
+        if '(' in os.path.basename(file_path) and ')' in os.path.basename(file_path):
+            fits_file_n = f"{file_path[:-11]}_{timestamp}.fits"  # Adjust as necessary based on your naming convention
+        else:
+            fits_file_n = f"{file_path[:-8]}_{timestamp}.fits"  # Adjust as necessary based on your naming convention
+    
+    # Unpack the .bz2 file
+        with bz2.open(file_path, "rb") as file:
+            with open(fits_file_n, "wb") as fits_file:
                 fits_file.write(file.read())
+    
         return fits_file_n
+
+
+    def move_rename_images(file_name, id):
+        collection_unit = os.path.join("C:/Users/HP/Desktop/Python/data", f"Galaxy_{id}/images")
+        os.makedirs(collection_unit, exist_ok=True)
+        shutil.move(file_name, os.path.join(collection_unit, os.path.basename(file_name)))
+
+    def move_rename_spectrum(file_name, id):
+        collection_unit = os.path.join("C:/Users/HP/Desktop/Python/data", f"Galaxy_{id}/spectrum")
+        os.makedirs(collection_unit, exist_ok=True)
+        shutil.move(file_name, os.path.join(collection_unit, os.path.basename(file_name)))
+
     def move_rename_images(file_name,id):
         collection_unit = os.path.join("C:/Users/HP/Desktop/Python/data",f"Galaxy_{id}/images")
         os.makedirs(collection_unit,exist_ok=True)
@@ -86,7 +110,7 @@ def monitor_folder(folder_path):
 
     
 # Intitialize the Id collection class
-Id_collection = Id_collection(100,"./optical_search_412544.csv")
+Id_collection = Id_collection(504,"./optical_search_430636.csv")
 spaceIds = Id_collection.get_Ids()
 #print(spaceIds)
 url_collection = Id_collection.url_const_im(spaceIds)
@@ -152,15 +176,15 @@ def navigate_to_spectrum(url):
     print(f"Spectrum downloaded {Color.GREEN}Successfully")
     observer.join()  
 #running a loop
-#Shall re-furnish the looping function to make it efficient
-for i in range(1):
+
+for i in range(5):
     navigate_to_fits(url_collection[i])
     navigate_to_spectrum(url_collection_spectrum[i])
 
 
 downloads_path = "C:/Users/HP/Downloads"
 
-file_list = glob.glob(os.path.join(downloads_path,"*.fits.bz2"))
+file_list = glob.glob(os.path.join(downloads_path,"*.bz2"))
 file_list.sort(key = os.path.getmtime,reverse = True)
 
 
@@ -182,3 +206,5 @@ for i in range(len(spec_file_list)):
     folder_id = i+1
     Unpack_move.move_rename_spectrum(spec_file_list[i],folder_id)
     print(f"{Color.GREEN}Moved {spec_file_list[i]} into Galaxy{folder_id}/spectrum ")
+
+
