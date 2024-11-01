@@ -24,8 +24,7 @@ from watchdog.events import FileSystemEventHandler
 options = Options()
 
 # Enter the SDSS data collection webpage
-m = int(input("Enter how many galaxies you want to inspect : "))  # For a most general case m = len(space_Ids)
-n = int(input("Enter how many galaxies you want to download : ")) # and m = n
+ # and m = n
 class Id_collection:
     def __init__(self,n_points,csv_file):
         self.n_points = n_points
@@ -47,10 +46,16 @@ class Id_collection:
         for i in range(len(SpaceIds)):
             urls.append(f"https://cas.sdss.org/dr18/VisualTools/explore/fitsspec?spec={SpaceIds[i]}")
         return urls
+    def is_present(driver,url):
+        element = driver.find_element(By.XPATH,'//*[@id="explore"]/div[3]/div/div/text()')
+        if element:
+            return False
+        else:
+            return True
 class Unpack_move:
     def unpack_fits(file_path):
         # Create a unique filename based on the current timestamp
-        timestamp = datetime.datetime.now().strftime("%M")
+        timestamp = datetime.datetime.now().strftime("%M%S")
     
         # Check if the filename contains parentheses
         if '(' in os.path.basename(file_path) and ')' in os.path.basename(file_path):
@@ -124,43 +129,45 @@ url_collection_spectrum = Id_collection.url_const_sp(spaceIds)
 def navigate_to_fits(url):
     driver = webdriver.Firefox()
     driver.get(url)
-    # Define an explicit wait time (e.g., 15 seconds)
-    wait = WebDriverWait(driver, 15)
 
     # Wait until the "FITS" link becomes clickable
+    wait = WebDriverWait(driver, 15)
     fits_link = wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, 'FITS')))
-
-    # Click the "FITS" link once it's clickable
     fits_link.click()
-    
-    # Switchcing the tab
+
+    # Switch to the new tab
     driver.switch_to.window(driver.window_handles[1])
 
     # Download all filters in corrected frames
-    filters = ["u","g","r","i","z"]
-    folder_path = "C:/Users/HP/Downloads"
-    event_handler = NewFileHandler()
-    observer = Observer()
-    observer.schedule(event_handler, folder_path, recursive=False)
-    observer.start()
-    print(f"{Color.GREEN}Started monitoring folder: {Color.CYAN}{folder_path}")
+    filters = ["u", "g", "r", "i", "z"]
 
-    # Loop for all the filters and download the first link.
+    # Collect and click all download links without waiting
     for filter in filters:
-        wait_time = WebDriverWait(driver,10)
-        download_link = wait_time.until(EC.presence_of_element_located((By.LINK_TEXT,filter)))
-        time.sleep(3)
-        download_link.click()     
-    time.sleep(4)
-    driver.quit()
-    observer.stop()
-    print(f"Filters downloaded {Color.GREEN}Successfully")
-    observer.join()
+        wait_time = WebDriverWait(driver, 3.5)
+        download_link = wait_time.until(EC.presence_of_element_located((By.LINK_TEXT, filter)))
+        download_link.click()
+        time.sleep(0.01)  # Click the link directly to start download
+
+    # Wait for the downloads to complete
+    downloads_path = "C:/Users/HP/Downloads"
+
+    # Check for the number of downloaded files
+    while True:
+        file_list = glob.glob(os.path.join(downloads_path, "*.bz2"))
+        
+        if len(file_list) >= 5:  # Check if at least 5 files have been downloaded
+            print(f"5 files downloaded {Color.GREEN}Successfully")
+            break
+
+        time.sleep(1)
+    time.sleep(0.5)
+
+    driver.quit()  # Close the browser window
 
 def navigate_to_spectrum(url):
     driver = webdriver.Firefox()
     driver.get(url)
-    wait = WebDriverWait(driver,15)
+    wait = WebDriverWait(driver,2.5)
     folder_path = "C:/Users/HP/Downloads"
     event_handler = NewFileHandler()
     observer = Observer()
@@ -170,41 +177,29 @@ def navigate_to_spectrum(url):
 
     spectrum_link = wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT,"Download")))
     spectrum_link.click()
-    time.sleep(2)
+    time.sleep(1)
     driver.quit()
     observer.stop()
     print(f"Spectrum downloaded {Color.GREEN}Successfully")
     observer.join()  
 #running a loop
-
-for i in range(5):
-    navigate_to_fits(url_collection[i])
-    navigate_to_spectrum(url_collection_spectrum[i])
-
-
 downloads_path = "C:/Users/HP/Downloads"
-
-file_list = glob.glob(os.path.join(downloads_path,"*.bz2"))
-file_list.sort(key = os.path.getmtime,reverse = True)
-
-
-#Make batches of 5
-for i in range(len(file_list)):
-    folder_id = i//5 + 1
-    ftbu = file_list[i]
-    unpacked_file = Unpack_move.unpack_fits(ftbu)
-    #moving to folder
-    Unpack_move.move_rename_images(unpacked_file,folder_id)
-    print(f"{Color.GREEN}Moved {unpacked_file} into Galaxy{folder_id}/images ")
-
-#Formating the spectrum into the respective files
-
-spec_file_list = glob.glob(os.path.join(downloads_path,"*fits"))
-spec_file_list.sort(key = os.path.getmtime,reverse=True)
-
-for i in range(len(spec_file_list)):
-    folder_id = i+1
-    Unpack_move.move_rename_spectrum(spec_file_list[i],folder_id)
-    print(f"{Color.GREEN}Moved {spec_file_list[i]} into Galaxy{folder_id}/spectrum ")
-
-
+for i in range(100):
+    print(f"Started downloading Galaxy{i+1}_{spaceIds[i]}")
+    navigate_to_fits(url_collection[i])
+    file_list = glob.glob(os.path.join(downloads_path,"*.bz2"))
+    file_list.sort(key = os.path.getmtime,reverse=True)
+    file_list = file_list[0:5]
+    folder_id = spaceIds[i]
+    for j in range(len(file_list)):
+        ftbu = file_list[j]
+        unpacked_file = Unpack_move.unpack_fits(ftbu)
+        #moving to folder
+        Unpack_move.move_rename_images(unpacked_file,folder_id)
+        print(f"{Color.GREEN}Moved {unpacked_file} into Galaxy{folder_id}/images ")
+    navigate_to_spectrum(url_collection_spectrum[i])
+    spec_file_list = glob.glob(os.path.join(downloads_path,"*fits"))
+    spec_file_list.sort(key = os.path.getmtime,reverse=True)
+    spec_file_list = spec_file_list[0]
+    Unpack_move.move_rename_spectrum(spec_file_list,folder_id)
+    print(f"{Color.GREEN}Moved {spec_file_list} into Galaxy{folder_id}/spectrum ")
