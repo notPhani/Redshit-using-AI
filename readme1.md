@@ -31,31 +31,31 @@ Before you begin, make sure you have the following installed:
 ```bash
 git clone https://github.com/yourusername/galaxy-redshift-prediction.git
 cd galaxy-redshift-prediction
-(Optional but recommended) Create a virtual environment:
-bash
-Copy code
+```
+### (Optional but recommended) Create a virtual environment:
+```bash
 python -m venv venv
+```
 Install the project dependencies:
-bash
-Copy code
+```bash
 pip install -r requirements.txt
-How to Use
+```
+### How to Use
 Prepare the data: Ensure that your galaxy filter image files are organized in the correct folder structure as expected by the code (refer to script comments or documentation for guidance).
 
 Train the model: Start training the model using the main.py script. This script handles data preprocessing and model training.
 
-bash
-Copy code
+```bash
 python main.py
+```
 Make Predictions: Once the model is trained, you can use the main_spec.py and main_redshift.py scripts to predict galaxy spectra and redshift, respectively.
-bash
-Copy code
+```bash
 python main_spec.py    # Predict the reconstructed spectrum of galaxies
 python main_redshift.py  # Predict the redshift based on the reconstructed spectrum
+```
 Evaluate Results: The scripts will visualize the predicted spectra alongside the true spectra, and output metrics like Mean Squared Error (MSE) and Mean Absolute Error (MAE).
 Directory Structure
-bash
-Copy code
+```bash
 /galaxy-redshift-prediction
 │
 ├── /data                    # Folder containing galaxy filter and spectrum data.
@@ -69,6 +69,7 @@ Copy code
 ├── requirements.txt        # Python dependencies for the project.
 ├── LICENSE                 # License file for the project (MIT or similar).
 └── README.md               # This file.
+```
 Model Details
 The model is a Convolutional Neural Network (CNN) designed to process multi-filter galaxy images and reconstruct their spectra. This reconstructed spectrum is then used to predict the galaxy's redshift, a key parameter in understanding the galaxy's movement and distance in the universe.
 
@@ -95,5 +96,5 @@ TensorFlow/Keras: For the deep learning framework used to build and train the mo
 Contact
 Feel free to reach out for any inquiries or collaboration opportunities:
 
-GitHub: [Your GitHub Profile Link]
-Email: [Your Email Address]
+GitHub: https://github.com/notPhani/
+Email: phaniexplains14@gmail.com
