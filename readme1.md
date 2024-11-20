@@ -70,8 +70,10 @@ Directory Structure
 ├── LICENSE                 # License file for the project (MIT or similar).
 └── README.md               # This file.
 ```
-Model Details
+### Model Details
 The model is a Convolutional Neural Network (CNN) designed to process multi-filter galaxy images and reconstruct their spectra. This reconstructed spectrum is then used to predict the galaxy's redshift, a key parameter in understanding the galaxy's movement and distance in the universe.
+
+---
 
 Convolutional Layers: The CNN uses convolutional layers to extract features from the filter images.
 Fully Connected Layers: After feature extraction, fully connected layers are used to predict the redshift.
@@ -79,9 +81,10 @@ Optimizer: Adam optimizer is used with a learning rate scheduler to improve trai
 Results
 The model performs well on the training data, showing a low error rate in spectrum reconstruction and accurate redshift predictions. The results are evaluated based on Mean Squared Error (MSE) and Mean Absolute Error (MAE), providing an overall assessment of prediction accuracy.
 
-Contributing
-We welcome contributions! If you’d like to improve this project or add new features, follow these steps:
+---
 
+### Contributing
+We welcome contributions! If you’d like to improve this project or add new features, follow these steps:
 Fork the repository.
 Create a new branch for your feature or bug fix.
 Make your changes and commit them.
@@ -89,12 +92,16 @@ Push your changes and create a pull request.
 License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-Acknowledgements
+---
+
+### Acknowledgements
 MLH Fellowship: This project is part of my submission for the MLH Fellowship program.
 Kaggle: Some datasets and resources were sourced from Kaggle for this project.
 TensorFlow/Keras: For the deep learning framework used to build and train the model.
-Contact
+
+### Contact
 Feel free to reach out for any inquiries or collaboration opportunities:
 
 GitHub: https://github.com/notPhani/
+
 Email: phaniexplains14@gmail.com
